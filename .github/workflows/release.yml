@@ -1,0 +1,36 @@
+name: "Release"
+on:
+  push:
+    branches:
+      - master
+jobs:
+  release_job:
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    runs-on: macos-latest
+    name: Build Project
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_REPOSITORY: ${{ secrets.GITHUB_REPOSITORY }}
+    steps:
+      - uses: webfactory/ssh-agent@v0.3.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+      - run: |
+          git clone git@github.com:$GITHUB_REPOSITORY.git $GITHUB_WORKSPACE
+          git config --global user.name "Fruit Bot"
+          git config --global user.email "bot@relevantfruit.com"
+      - name: Cache Gemfile
+        uses: actions/cache@v1
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gem-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: ${{ runner.os }}-gem-
+      - name: Install dependencies
+        run: |
+          gem install bundler --no-document
+          bundle config set deployment 'true'
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3
+      - name: "Build application"
+        run: bundle exec fastlane build
