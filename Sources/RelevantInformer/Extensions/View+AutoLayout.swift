@@ -9,21 +9,21 @@
 import UIKit
 
 extension UIView {
-    
-  public func anchorTo(top: NSLayoutYAxisAnchor? = nil,
-                       leading: NSLayoutXAxisAnchor? = nil,
-                       bottom: NSLayoutYAxisAnchor? = nil,
-                       trailing: NSLayoutXAxisAnchor? = nil,
-                       
-                       topConstant: CGFloat = 0,
-                       leadingConstant: CGFloat = 0,
-                       bottomConstant: CGFloat = 0,
-                       trailingConstant: CGFloat = 0,
-                       
-                       defaultPadding: CGFloat = 0,
-                       
-                       widthConstant: CGFloat = 0,
-                       heightConstant: CGFloat = 0) {
+  
+  func anchorTo(top: NSLayoutYAxisAnchor? = nil,
+                leading: NSLayoutXAxisAnchor? = nil,
+                bottom: NSLayoutYAxisAnchor? = nil,
+                trailing: NSLayoutXAxisAnchor? = nil,
+                
+                topConstant: CGFloat = 0,
+                leadingConstant: CGFloat = 0,
+                bottomConstant: CGFloat = 0,
+                trailingConstant: CGFloat = 0,
+                
+                defaultPadding: CGFloat = 0,
+                
+                widthConstant: CGFloat = 0,
+                heightConstant: CGFloat = 0) {
     
     translatesAutoresizingMaskIntoConstraints = false
     
@@ -40,16 +40,16 @@ extension UIView {
   }
   
   @discardableResult
-  public func anchorWithReturnAnchors(top: NSLayoutYAxisAnchor? = nil,
-                                      leading: NSLayoutXAxisAnchor? = nil,
-                                      bottom: NSLayoutYAxisAnchor? = nil,
-                                      trailing: NSLayoutXAxisAnchor? = nil,
-                                      topConstant: CGFloat = 0,
-                                      leadingConstant: CGFloat = 0,
-                                      bottomConstant: CGFloat = 0,
-                                      trailingConstant: CGFloat = 0,
-                                      widthConstant: CGFloat = 0,
-                                      heightConstant: CGFloat = 0) -> [NSLayoutConstraint] {
+  func anchorWithReturnAnchors(top: NSLayoutYAxisAnchor? = nil,
+                               leading: NSLayoutXAxisAnchor? = nil,
+                               bottom: NSLayoutYAxisAnchor? = nil,
+                               trailing: NSLayoutXAxisAnchor? = nil,
+                               topConstant: CGFloat = 0,
+                               leadingConstant: CGFloat = 0,
+                               bottomConstant: CGFloat = 0,
+                               trailingConstant: CGFloat = 0,
+                               widthConstant: CGFloat = 0,
+                               heightConstant: CGFloat = 0) -> [NSLayoutConstraint] {
     
     translatesAutoresizingMaskIntoConstraints = false
     
@@ -83,27 +83,27 @@ extension UIView {
     
     return anchors
   }
-    
-  public func anchorCenterSuperview() {
+  
+  func anchorCenterSuperview() {
     anchorCenterXToSuperview()
     anchorCenterYToSuperview()
   }
   
-  public func anchorCenterXToSuperview(constant: CGFloat = 0) {
+  func anchorCenterXToSuperview(constant: CGFloat = 0) {
     translatesAutoresizingMaskIntoConstraints = false
     if let anchor = superview?.centerXAnchor {
       centerXAnchor.constraint(equalTo: anchor, constant: constant).activate()
     }
   }
   
-  public func anchorCenterYToSuperview(constant: CGFloat = 0) {
+  func anchorCenterYToSuperview(constant: CGFloat = 0) {
     translatesAutoresizingMaskIntoConstraints = false
     if let anchor = superview?.centerYAnchor {
       centerYAnchor.constraint(equalTo: anchor, constant: constant).activate()
     }
   }
-    
-  public func fillSuperview(withMargins margin: CGFloat = 0) {
+  
+  func fillSuperview(withMargins margin: CGFloat = 0) {
     translatesAutoresizingMaskIntoConstraints = false
     if let superview = superview {
       leadingAnchor.constraint(equalTo: superview.leadingAnchor, constant: margin).activate()
@@ -112,8 +112,8 @@ extension UIView {
       bottomAnchor.constraint(equalTo: superview.bottomAnchor, constant: -margin).activate()
     }
   }
-    
-  public func anchorToTop(topConstant: CGFloat = 0, sidePadding: CGFloat = 0) {
+  
+  func anchorToTop(topConstant: CGFloat = 0, sidePadding: CGFloat = 0) {
     translatesAutoresizingMaskIntoConstraints = false
     
     var anchors = [NSLayoutConstraint]()
@@ -133,7 +133,7 @@ extension UIView {
     anchors.forEach { $0.activate() }
   }
   
-  public func anchorToBottom(bottomConstant: CGFloat = 0, sidePadding: CGFloat = 0) {
+  func anchorToBottom(bottomConstant: CGFloat = 0, sidePadding: CGFloat = 0) {
     translatesAutoresizingMaskIntoConstraints = false
     
     var anchors = [NSLayoutConstraint]()
@@ -155,7 +155,7 @@ extension UIView {
 }
 
 extension UIView {
-
+  
   func constraint(_ edge: NSLayoutConstraint.Attribute,
                   constant: CGFloat = 0,
                   relation: NSLayoutConstraint.Relation = .equal,
