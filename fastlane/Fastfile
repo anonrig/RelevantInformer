@@ -29,10 +29,12 @@ platform :ios do
   lane :build do
     analyze_commits(match: "*")
     next_version = lane_context[SharedValues::RELEASE_NEXT_VERSION]
-
-    markdownChangelog = conventional_changelog(title: "Relevant Informer", format: "markdown")
-
-    add_git_tag(tag: next_version, message: markdownChangelog)
-    push_to_git_remote
+    will_release = lane_context[SharedValues::RELEASE_IS_NEXT_VERSION_HIGHER]
+    
+    if will_release
+      markdownChangelog = conventional_changelog(title: "Relevant Informer", format: "markdown")
+      add_git_tag(tag: next_version, message: markdownChangelog)
+      push_to_git_remote
+    end
   end
 end
