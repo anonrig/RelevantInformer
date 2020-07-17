@@ -18,7 +18,7 @@ public struct RIAttributes {
     
   public var displayDuration = DisplayDuration.default
   
-  public var positionConstraints = PositionConstraints.float
+  public var positionConstraints = PositionConstraints.default
   
   // MARK: - User Interaction Attributes
   

@@ -17,7 +17,7 @@ public extension RIAttributes {
     public var rotation = Rotation()
     
     /** The entry can be bound to keyboard in case of appearance */
-    public var keyboardRelation = KeyboardRelation.none
+    public var keyboardRelation = KeyboardRelation.bind(offset: .default)
     
     /** The size of the entry */
     public var size: Size
@@ -49,6 +49,8 @@ public extension RIAttributes {
       }
       return distance
     }
+    
+    public static let `default` = PositionConstraints()
     
     /** Returns a floating entry (float-like) */
     public static var float: PositionConstraints {
