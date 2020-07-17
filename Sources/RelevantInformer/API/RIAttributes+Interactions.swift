@@ -15,7 +15,7 @@ public extension RIAttributes {
     public var onScreen: Kind
     public var onContent: Kind
     
-    init(onScreen: Kind = .forwardToLowerWindow, onContent: Kind = .dismiss) {
+    init(onScreen: Kind = .dismiss, onContent: Kind = .forwardToLowerWindow) {
       self.onScreen = onScreen
       self.onContent = onContent
     }

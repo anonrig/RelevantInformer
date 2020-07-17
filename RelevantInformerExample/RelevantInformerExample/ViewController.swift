@@ -56,10 +56,7 @@ final class ViewController: UIViewController {
     )
     
     attributes.displayDuration = .infinity
-    attributes.interaction.onScreen = .dismiss
-    attributes.interaction.onContent = .dismiss
-    
-    
+    attributes.interaction.onScreen = .ignore
     
     if counter > 0 {
       exampleVC.descriptionLabel.text = "\(counter)"
