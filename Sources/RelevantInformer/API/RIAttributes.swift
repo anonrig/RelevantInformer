@@ -20,7 +20,7 @@ public struct RIAttributes {
   
   public var positionConstraints = PositionConstraints.float
   
-  // MARK: User Interaction Attributes
+  // MARK: - User Interaction Attributes
   
   public var interaction = Interaction.default
   
