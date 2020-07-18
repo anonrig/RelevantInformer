@@ -33,7 +33,7 @@ final class BottomToCenterAnimation: Animator {
   private func setup() {
     var offset: CGFloat = 0
     
-    if case .offset(let value) = attributes.positionConstraints.size.width {
+    if case .offset(let value) = attributes.constraints.size.width {
       offset = value
     }
 
@@ -48,7 +48,7 @@ final class BottomToCenterAnimation: Animator {
   }
   
   private func setupKeyboardAnimation() {
-    if attributes.positionConstraints.keyboardRelation.isBound {
+    if attributes.constraints.keyboard.isBound {
       keyboardAnimation = KeyboardAnimation(context: context, targetConstraint: targetConstraint)
     }
   }

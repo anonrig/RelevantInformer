@@ -1,5 +1,5 @@
 //
-//  RIAttributes+PositionConstraints.swift
+//  RIAttributes+Constraints.swift
 //  RelevantInformerExample
 //
 //  Created by Rufat Mirza on 15.07.2020.
@@ -10,83 +10,52 @@ import UIKit
 
 public extension RIAttributes {
   
-  /** Describes the frame of the entry. It's limitations, width and offset from the anchor (top / bottom of the screen) */
-  struct PositionConstraints {
+  struct Constraints {
     
-    /** The rotation attributes of the entry */
-    public var rotation = Rotation()
+    public let keyboard: Keyboard
+    public let size: Size
     
-    /** The entry can be bound to keyboard in case of appearance */
-    public var keyboardRelation = KeyboardRelation.bind(offset: .default)
-    
-    /** The size of the entry */
-    public var size: Size
-    
-    /** The maximum size of the entry */
-    public var maxSize: Size
-    
-    /** The vertical offset from the top or bottom anchor */
-    public var verticalOffset: CGFloat
-    
-    /** Can be used to display the content outside the safe area margins such as on the notch of the iPhone X or the status bar itself. */
-    public var safeArea = SafeArea.empty(fillSafeArea: false)
-    
-    public var hasVerticalOffset: Bool {
-      return verticalOffset > 0
-    }
-    
-    public var offsetToKeyboard: CGFloat {
-      guard case .bind(let offset) = keyboardRelation else {
+    public var distanceToKeyboard: CGFloat {
+      guard case .connected(let distance) = keyboard else {
         return 0
       }
-      return offset.distanceFromKeyboard
+      return distance.toKeyboard
     }
     
-    public var offsetToTop: CGFloat? {
-      guard case .bind(let offset) = keyboardRelation,
-        let distance = offset.distanceToTop else {
-        return nil
+    public var distanceToTop: CGFloat? {
+      guard case .connected(let distance) = keyboard,
+        let distanceToTop = distance.toTop else {
+          return nil
       }
-      return distance
+      return distanceToTop
     }
     
-    public static let `default` = PositionConstraints()
-    
-    /** Returns a floating entry (float-like) */
-    public static var float: PositionConstraints {
-      return PositionConstraints(verticalOffset: 10, size: .init(width: .offset(value: 20), height: .intrinsic))
-    }
-    
-    /** A full width entry (toast-like) */
-    public static var fullWidth: PositionConstraints {
-      return PositionConstraints(verticalOffset: 0, size: .sizeToWidth)
-    }
-    
-    /** A full screen entry - fills the entire screen, modal-like */
-    public static var fullScreen: PositionConstraints {
-      return PositionConstraints(verticalOffset: 0, size: .screen)
-    }
-    
-    public init(verticalOffset: CGFloat = 0, size: Size = .sizeToWidth, maxSize: Size = .intrinsic) {
-      self.verticalOffset = verticalOffset
+    public init(size: Size, keyboard: Keyboard) {
       self.size = size
-      self.maxSize = maxSize
+      self.keyboard = keyboard
     }
+    
+    public static var floatingCard: Constraints {
+      let size = Size(width: .offset(value: 20), height: .intrinsic)
+      return Constraints(size: size, keyboard: .connected(distance: .default))
+    }
+    
+    public static let `default` = Constraints.floatingCard
   }
 }
 
-// MARK: - KeyboardRelation
+// MARK: - Keyboard
 
-public extension RIAttributes {
-
-  enum KeyboardRelation {
+public extension RIAttributes.Constraints {
+  
+  enum Keyboard {
     
-    case bind(offset: Offset)
+    case connected(distance: Distance)
     case none
     
     public var isBound: Bool {
       switch self {
-      case .bind:
+      case .connected:
         return true
       case .none:
         return false
@@ -95,67 +64,38 @@ public extension RIAttributes {
   }
 }
 
-// MARK: - Offset
+// MARK: - Distance
 
-public extension RIAttributes.KeyboardRelation {
+public extension RIAttributes.Constraints.Keyboard {
   
-  struct Offset {
+  struct Distance {
     
-    public var distanceFromKeyboard: CGFloat
-    public var distanceToTop: CGFloat?
+    public var toKeyboard: CGFloat
+    public var toTop: CGFloat?
     
-    public init(bottom: CGFloat = 20, screenEdgeResistance: CGFloat? = nil) {
-      self.distanceFromKeyboard = bottom
-      self.distanceToTop = screenEdgeResistance
+    public init(toKeyboard: CGFloat = 20, toTop: CGFloat? = nil) {
+      self.toKeyboard = toKeyboard
+      self.toTop = toTop
     }
     
-    public static var `default` = Offset()
+    public static var `default` = Distance()
   }
 }
-
-// MARK: - SafeArea
-
-public extension RIAttributes {
-  
-  enum SafeArea {
-    
-    /** Entry overrides safe area */
-    case overridden
-    
-    /** The entry shows outs. But can optionally be colored */
-    case empty(fillSafeArea: Bool)
-    
-    public var isOverridden: Bool {
-      switch self {
-      case .overridden:
-        return true
-      default:
-        return false
-      }
-    }
-  }
-}
-
 
 // MARK: - Edge
 
-public extension RIAttributes {
-
+public extension RIAttributes.Constraints {
+  
   enum Edge {
     
-    /** Ratio constraint to screen edge */
     case ratio(value: CGFloat)
     
-    /** Offset from each edge of the screen */
     case offset(value: CGFloat)
     
-    /** Constant edge length */
     case constant(value: CGFloat)
     
-    /** Unspecified edge length */
     case intrinsic
     
-    /** Edge totally filled */
     public static var fill: Edge {
       return .offset(value: 0)
     }
@@ -164,61 +104,17 @@ public extension RIAttributes {
 
 // MARK: - Size
 
-public extension RIAttributes {
-
+public extension RIAttributes.Constraints {
+  
   struct Size {
     
-    /** Describes a width constraint */
     public var width: Edge
     
-    /** Describes a height constraint */
     public var height: Edge
     
-    /** Initializer */
     public init(width: Edge, height: Edge) {
       self.width = width
       self.height = height
     }
-    
-    /** The content's size. Entry's content view must have tight constraints */
-    public static var intrinsic: Size {
-      return Size(width: .intrinsic, height: .intrinsic)
-    }
-    
-    /** The content's size. Entry's content view must have tight constraints */
-    public static var sizeToWidth: Size {
-      return Size(width: .offset(value: 0), height: .intrinsic)
-    }
-    
-    /** Screen size, without horizontal or vertical offset */
-    public static var screen: Size {
-      return Size(width: .fill, height: .fill)
-    }
-  }
-}
-
-// MARK: - Rotation
-
-public extension RIAttributes {
-
-  struct Rotation {
-    
-    /** Attributes of supported interface orientations */
-    public enum SupportedInterfaceOrientation {
-      
-      /** Uses standard supported interface orientation (target specification in general settings) */
-      case standard
-      
-      /** Supports all orinetations */
-      case all
-    }
-    
-    /** Autorotate the entry along with the device orientation */
-    public var isEnabled = true
-    
-    /** The screen autorotates with accordance to this option */
-    public var supportedInterfaceOrientations = SupportedInterfaceOrientation.standard
-    
-    public init() {}
   }
 }
