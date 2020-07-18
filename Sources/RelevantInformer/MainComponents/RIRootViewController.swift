@@ -83,6 +83,7 @@ extension RIRootViewController: ContentViewDelegate {
   func changeToActive(with attributes: RIAttributes) {
     let style = RIBackgroundView.Style(background: attributes.screenBackground, displayMode: attributes.displayMode)
     changeBackground(to: style, duration: attributes.animations.entrance.totalDuration)
+    attributes.hapticFeedback.generate()
   }
   
   func changeToInactive(with attributes: RIAttributes) {

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import NotificationCenter
 
 public struct RIAttributes {
   
@@ -26,7 +27,7 @@ public struct RIAttributes {
   
   public var scroll = Scroll.enabled(swipeable: true, pullbackAnimation: .jolt)
   
-//    public var hapticFeedbackType = NotificationHapticFeedback.none
+  public var hapticFeedback: HapticFeedback = .none
   
   // MARK: - Theme & Style Attributes
   
