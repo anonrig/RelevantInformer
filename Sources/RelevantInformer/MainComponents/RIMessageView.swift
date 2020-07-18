@@ -20,15 +20,19 @@ final class RIMessageView: RIStyleView {
   private let backgroundView: RIBackgroundView = .init()
   
   weak var delegate: TouchEventsDelegate!
-    
+      
   init(view: UIView, attributes: RIAttributes) {
     self.contentView = view
     self.attributes = attributes
     
     super.init(frame: UIScreen.main.bounds)
-    addSubview(contentView)
-    contentView.fillSuperview()
     
+    addSubview(backgroundView)
+    backgroundView.addSubview(contentView)
+    
+    backgroundView.fillSuperview()
+    contentView.fillSuperview()
+  
     prepareShadow()
     prepareBackground()
   }
@@ -44,10 +48,8 @@ final class RIMessageView: RIStyleView {
   
   private func prepareShadow() {
     switch attributes.shadow {
-    case .active(with: let value):
-      applyDropShadow(withOffset: value.offset,
-                      opacity: value.opacity,
-                      radius: value.radius,
+    case .active(let value):
+      applyDropShadow(with: value.offset, opacity: value.opacity, radius: value.radius,
                       color: value.color.color(for: traitCollection, mode: attributes.displayMode))
     case .none:
       removeDropShadow()
@@ -57,8 +59,6 @@ final class RIMessageView: RIStyleView {
   private func prepareBackground() {
     let style = RIBackgroundView.Style(background: attributes.contentBackground, displayMode: attributes.displayMode)
     backgroundView.prepare(with: style)
-    insertSubview(backgroundView, at: 0)
-    backgroundView.fillSuperview()
   }
   
   override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {

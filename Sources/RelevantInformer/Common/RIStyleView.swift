@@ -9,9 +9,7 @@ class RIStyleView: UIView {
   
   private var roundCorners: RIAttributes.RoundCorners!
   private var border: RIAttributes.Border!
-  
-  var appliedStyle = false
-  
+    
   func applyFrameStyle(roundCorners: RIAttributes.RoundCorners, border: RIAttributes.Border) {
     self.roundCorners = roundCorners
     self.border = border
@@ -37,8 +35,6 @@ class RIStyleView: UIView {
       borderLayer.frame = bounds
       layer.addSublayer(borderLayer)
     }
-    
-    appliedStyle = true
   }
   
   override func layoutSubviews() {
