@@ -146,7 +146,7 @@ private extension RIContentManager {
   
   private func animateOut(userInitiated: Bool, completion: VoidCallback? = nil) {
     
-    if attributes.positionConstraints.keyboardRelation.isBound {
+    if attributes.constraints.keyboard.isBound {
       container.endEditing(true)
     }
     

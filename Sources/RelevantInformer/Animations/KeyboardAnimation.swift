@@ -31,7 +31,7 @@ final class KeyboardAnimation {
   }
   
   private func setup() {
-    if let distance = attributes.positionConstraints.offsetToTop {
+    if let distance = attributes.constraints.distanceToTop {
       resistanceConstraint = child.constraint(.top, constant: distance, relation: .greaterThanOrEqual,
                                               toView: parent, to: .top, priority: .defaultLow)
     }
@@ -40,7 +40,7 @@ final class KeyboardAnimation {
   }
   
   private func setupObservers() {
-    guard attributes.positionConstraints.keyboardRelation.isBound else {
+    guard attributes.constraints.keyboard.isBound else {
       return
     }
     
@@ -54,7 +54,7 @@ final class KeyboardAnimation {
   
   private func show(with userInfo: [AnyHashable: Any]?) {
     guard let properties = KeyboardAttributes(with: userInfo) else { return }
-    showingConstraint.constant = -(properties.height + attributes.positionConstraints.offsetToKeyboard)
+    showingConstraint.constant = -(properties.height + attributes.constraints.distanceToKeyboard)
     showingConstraint.activate()
     resistanceConstraint?.activate()
     targetConstraint.deactivate()
