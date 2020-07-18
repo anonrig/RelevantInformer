@@ -38,7 +38,6 @@ final class ViewController: UIViewController {
     attributes.screenBackground = .visualEffect(style: .prominent)
     attributes.roundCorners = .all(radius: 20)
     attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 4, offset: .init(width: 0, height: 0)))
-    attributes.contentBackground = .color(color: .init(.white))
     
     attributes.animations.entrance = .init(
       translate: .init(duration: 0.7,

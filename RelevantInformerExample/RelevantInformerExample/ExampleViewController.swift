@@ -63,7 +63,7 @@ public class ExampleViewController: UIViewController {
   
   public override func viewDidLoad() {
     super.viewDidLoad()
-    view.backgroundColor = .clear
+    view.backgroundColor = .gray
     
     view.addSubview(stackView)
     stackView.translatesAutoresizingMaskIntoConstraints = false
