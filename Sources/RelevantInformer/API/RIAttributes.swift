@@ -24,9 +24,7 @@ public struct RIAttributes {
   // MARK: - User Interaction Attributes
   
   public var interaction = Interaction.default
-  
-  public var scroll = Scroll.enabled(swipeable: true, pullbackAnimation: .jolt)
-  
+    
   public var hapticFeedback: HapticFeedback = .none
   
   // MARK: - Theme & Style Attributes
@@ -48,4 +46,39 @@ public struct RIAttributes {
   // MARK: - Animation Attributes
   
   public var animations = Animations.default
+  
+  // MARK: - Presetation
+  
+  public var presentation = PresentationStyle.slideUpToCenter
 }
+
+// MARK: - Presets
+
+public extension RIAttributes {
+  
+  static var popup: RIAttributes {
+    var attributes = RIAttributes()
+    attributes.presentation = .slideUpToCenter
+    attributes.constraints.verticalOffset = 0
+    attributes.constraints = .floatingInAir(withSideMargins: 20)
+    return attributes
+  }
+  
+  static var notification: RIAttributes {
+    var attributes = RIAttributes()
+    attributes.presentation = .slideDownToTop
+    attributes.constraints.verticalOffset = 0
+    attributes.constraints = .floatingInAir(withSideMargins: 20)
+    return attributes
+  }
+  
+  static var solidBottomBar: RIAttributes {
+    var attributes = RIAttributes()
+    attributes.presentation = .slideUpToBottom
+    attributes.constraints = .nonFloating
+    attributes.interaction.isPanEnabled = true
+    attributes.interaction.isStretchEnabled = false
+    return attributes
+  }
+}
+

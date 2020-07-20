@@ -12,8 +12,9 @@ public extension RIAttributes {
   
   struct Constraints {
     
-    public let keyboard: Keyboard
-    public let size: Size
+    public var size: Size
+    public let keyboard: Keyboard = .connected(distance: .default)
+    public var verticalOffset: CGFloat = 0
     
     public var distanceToKeyboard: CGFloat {
       guard case .connected(let distance) = keyboard else {
@@ -21,7 +22,7 @@ public extension RIAttributes {
       }
       return distance.toKeyboard
     }
-    
+        
     public var distanceToTop: CGFloat? {
       guard case .connected(let distance) = keyboard,
         let distanceToTop = distance.toTop else {
@@ -29,18 +30,27 @@ public extension RIAttributes {
       }
       return distanceToTop
     }
-    
-    public init(size: Size, keyboard: Keyboard) {
+      
+    private init(size: Size) {
       self.size = size
-      self.keyboard = keyboard
     }
     
-    public static var floatingCard: Constraints {
-      let size = Size(width: .offset(value: 20), height: .intrinsic)
-      return Constraints(size: size, keyboard: .connected(distance: .default))
+    public static func floatingInAir(withSideMargins margin: CGFloat) -> Constraints {
+      let size = Size(width: .margin(value: margin), height: .intrinsic)
+      return Constraints(size: size)
     }
     
-    public static let `default` = Constraints.floatingCard
+    public static var floatingOnEdges: Constraints {
+      let size = Size(width: .margin(value: 0), height: .intrinsic)
+      return Constraints(size: size)
+    }
+    
+    public static var nonFloating: Constraints {
+      let size = Size(width: .margin(value: 0), height: .intrinsic)
+      return Constraints(size: size)
+    }
+    
+    public static let `default` = Constraints.floatingInAir(withSideMargins: 20)
   }
 }
 
@@ -89,15 +99,12 @@ public extension RIAttributes.Constraints {
   enum Edge {
     
     case ratio(value: CGFloat)
-    
-    case offset(value: CGFloat)
-    
+    case margin(value: CGFloat)
     case constant(value: CGFloat)
-    
     case intrinsic
     
     public static var fill: Edge {
-      return .offset(value: 0)
+      return .margin(value: 0)
     }
   }
 }
@@ -109,12 +116,23 @@ public extension RIAttributes.Constraints {
   struct Size {
     
     public var width: Edge
-    
     public var height: Edge
     
     public init(width: Edge, height: Edge) {
       self.width = width
       self.height = height
+    }
+    
+    public var sideMargin: CGFloat {
+      get {
+        guard case .margin(let value) = width else {
+          return 0
+        }
+        return value
+      }
+      set {
+        width = .margin(value: newValue)
+      }
     }
   }
 }

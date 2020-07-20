@@ -6,7 +6,7 @@
 //  Copyright © 2020 Rufat Mirza. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 public extension RIAttributes {
   
@@ -15,14 +15,20 @@ public extension RIAttributes {
     public var onScreen: Kind
     public var onContent: Kind
     
-    init(onScreen: Kind = .dismiss, onContent: Kind = .forwardToLowerWindow) {
+    public var isPanEnabled: Bool = true
+    public var isStretchEnabled: Bool = true
+    public var pullbackAnimation: PullbackAnimation = .jolt
+
+    init(onScreen: Kind, onContent: Kind) {
       self.onScreen = onScreen
       self.onContent = onContent
     }
     
-    static let `default` = Interaction()
+    static let `default` = Interaction(onScreen: .dismiss, onContent: .forwardToLowerWindow)
   }
 }
+
+// MARK: - Kind
 
 public extension RIAttributes.Interaction {
   
@@ -57,6 +63,32 @@ public extension RIAttributes.Interaction {
       default:
         return false
       }
+    }
+  }
+}
+
+// MARK: - PullbackAnimation
+
+extension RIAttributes.Interaction {
+  
+  public struct PullbackAnimation: RIAnimation {
+    
+    public var delay: TimeInterval
+    public var duration: TimeInterval
+    public var spring: RIAttributes.Animation.Spring?
+
+    public init(duration: TimeInterval, damping: CGFloat, initialSpringVelocity: CGFloat) {
+      self.delay = 0
+      self.duration = duration
+      self.spring = .init(damping: damping, initialVelocity: initialSpringVelocity)
+    }
+    
+    public static var jolt: PullbackAnimation {
+      return PullbackAnimation(duration: 0.5, damping: 0.3, initialSpringVelocity: 10)
+    }
+    
+    public static var easeOut: PullbackAnimation {
+      return PullbackAnimation(duration: 0.3, damping: 1, initialSpringVelocity: 10)
     }
   }
 }

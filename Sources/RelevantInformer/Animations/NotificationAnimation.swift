@@ -1,14 +1,13 @@
 //
-//  BottomToCenterAnimation.swift
-//  RelevantInformerExample
+//  NotificationAnimation.swift
+//  
 //
-//  Created by Rufat Mirza on 9.07.2020.
-//  Copyright © 2020 Rufat Mirza. All rights reserved.
+//  Created by Rufat Mirza on 19.07.2020.
 //
 
 import UIKit
 
-final class BottomToCenterAnimation: Animator {
+final class NotificationAnimation: Animator {
   
   var initialConstraint: NSLayoutConstraint!
   var targetConstraint: NSLayoutConstraint!
@@ -20,7 +19,7 @@ final class BottomToCenterAnimation: Animator {
   private let context: AnimationContext
     
   private var offset: CGFloat {
-    return attributes.constraints.verticalOffset
+    return UIApplication.shared.statusBarFrame.height + attributes.constraints.verticalOffset
   }
   
   init(context: AnimationContext) {
@@ -35,16 +34,16 @@ final class BottomToCenterAnimation: Animator {
   }
   
   private func setup() {
-    let sideMargin = attributes.constraints.size.sideMargin
+    let offset = attributes.constraints.size.sideMargin
 
     child.anchorCenterXToSuperview()
     child.anchorTo(leading: parent.leadingAnchor,
                    trailing: parent.trailingAnchor,
-                   leadingConstant: sideMargin,
-                   trailingConstant: sideMargin)
+                   leadingConstant: offset,
+                   trailingConstant: offset)
         
-    initialConstraint = child.constraint(.top, toView: parent, to: .bottom, priority: .must)
-    targetConstraint = child.constraint(.centerY, constant: offset, toView: parent, to: .centerY)
+    initialConstraint = child.constraint(.bottom, toView: parent, to: .top, priority: .must)
+    targetConstraint = child.constraint(.top, constant: offset, toView: parent, to: .top)
   }
   
   private func setupKeyboardAnimation() {

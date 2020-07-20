@@ -19,7 +19,6 @@ private extension RIContentManager {
   
   struct Constants {
     static let minimumSwipeVelocity: CGFloat = 60
-    static let verticalLimit: CGFloat = UIScreen.main.bounds.height
   }
 }
 
@@ -33,10 +32,19 @@ final class RIContentManager {
   private weak var delegate: ContentViewDelegate?
   
   private var targetConstraint: NSLayoutConstraint!
-  private var totalTranslation: CGFloat = 0
   private var pendingWork: DispatchWorkItem!
   private var animation: Animator!
     
+  private var totalTranslation: CGFloat = 0
+  
+  private var edgeOffset: CGFloat {
+    return attributes.constraints.verticalOffset
+  }
+  
+  private var verticalLimit: CGFloat {
+    return UIScreen.main.bounds.height + edgeOffset
+  }
+
   // MARK: Lifecycle
   
   init(with context: RelevantInformer.Context, container: UIViewController, delegate: ContentViewDelegate) {
@@ -59,7 +67,10 @@ final class RIContentManager {
     self.delegate = delegate
     
     setup()
-    setupGestureRecognizer()
+    setupPanGesture()
+    setupTapGesture()
+
+    totalTranslation = edgeOffset
   }
   
   required init?(coder aDecoder: NSCoder) {
@@ -77,20 +88,24 @@ final class RIContentManager {
     contentView.delegate = self
     container.addSubview(contentView)
     let animationContext = AnimationContext(view: contentView, parent: container, attributes: attributes)
-    animation = BottomToCenterAnimation(context: animationContext)
+    animation = attributes.presentation.animation(context: animationContext)
     targetConstraint = animation.targetConstraint
   }
   
-  private func setupGestureRecognizer() {
+  private func setupPanGesture() {
+    guard attributes.interaction.isPanEnabled else { return }
+    
     let panGesture = UIPanGestureRecognizer(target: self, action: #selector(panGestureRecognized(gesture:)))
-    panGesture.isEnabled = attributes.scroll.isEnabled
     contentView.addGestureRecognizer(panGesture)
-
+  }
+  
+  private func setupTapGesture() {
     let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapGestureRecognized))
     tapGesture.cancelsTouchesInView = false
 
     switch attributes.interaction.onContent {
-    case .forwardToLowerWindow: return
+    case .forwardToLowerWindow:
+      return
       
     default:
       contentView.addGestureRecognizer(tapGesture)
@@ -191,7 +206,7 @@ private extension RIContentManager {
     let translation = gesture.translation(in: container).y
     
     if shouldStretch(with: translation) {
-      if attributes.scroll.isEdgeCrossingEnabled {
+      if attributes.interaction.isStretchEnabled {
         totalTranslation += translation
         calculateLogarithmicOffset(forOffset: totalTranslation, currentTranslation: translation)
         
@@ -207,7 +222,7 @@ private extension RIContentManager {
       switch gesture.state {
       case .ended, .failed, .cancelled:
         let velocity = gesture.velocity(in: container).y
-        swipeEnded(withVelocity: velocity)
+        swipeEnded(with: velocity)
       case .changed:
         targetConstraint.constant += translation
       default:
@@ -217,12 +232,12 @@ private extension RIContentManager {
     gesture.setTranslation(.zero, in: container)
   }
   
-  func swipeEnded(withVelocity velocity: CGFloat) {
+  func swipeEnded(with velocity: CGFloat) {
     let distance = Swift.abs(0 - targetConstraint.constant)
     var duration = max(0.3, TimeInterval(distance / Swift.abs(velocity)))
     duration = min(0.7, duration)
     
-    if attributes.scroll.isSwipeable && testSwipeVelocity(with: velocity) && testSwipeInConstraint() {
+    if attributes.interaction.isPanEnabled && testSwipeVelocity(with: velocity) && testSwipeInConstraint() {
       stretchOut(duration: duration)
     }
     else {
@@ -235,26 +250,63 @@ private extension RIContentManager {
   }
   
   func calculateLogarithmicOffset(forOffset offset: CGFloat, currentTranslation: CGFloat) {
-    let offset = Swift.abs(offset) + Constants.verticalLimit
-    let addition: CGFloat = abs(currentTranslation) < 2 ? 0 : 1
-    targetConstraint.constant -= (addition + log10(offset / Constants.verticalLimit))
+    let offset = Swift.abs(offset) + verticalLimit
+    let delta = (1 + log10(offset / verticalLimit))
+    
+    switch attributes.presentation {
+    case .slideUpToCenter:
+      targetConstraint.constant -= delta
+
+    case .slideDownToTop:
+      targetConstraint.constant += delta
+      
+    case .slideUpToBottom:
+      targetConstraint.constant -= delta
+    }
   }
   
   func shouldStretch(with translation: CGFloat) -> Bool {
-    return translation < 0 && targetConstraint.constant <= 0
+    switch attributes.presentation {
+    case .slideUpToCenter:
+      return translation < 0 && targetConstraint.constant <= edgeOffset
+      
+    case .slideDownToTop:
+      return translation > 0 && targetConstraint.constant >= edgeOffset
+      
+    case .slideUpToBottom:
+      return translation < 0 && targetConstraint.constant <= edgeOffset
+    }
   }
   
   func animateRubberBandPullback() {
-    totalTranslation = Constants.verticalLimit
+    totalTranslation = edgeOffset
     animation.animateRubberBandPullback()
   }
   
   func testSwipeInConstraint() -> Bool {
-    return targetConstraint.constant > 0
+    switch attributes.presentation {
+    case .slideUpToCenter:
+      return targetConstraint.constant > edgeOffset
+      
+    case .slideDownToTop:
+      return targetConstraint.constant < edgeOffset
+    
+    case .slideUpToBottom:
+      return targetConstraint.constant > edgeOffset
+    }
   }
   
   func testSwipeVelocity(with velocity: CGFloat) -> Bool {
-    return velocity > Constants.minimumSwipeVelocity
+    switch attributes.presentation {
+    case .slideUpToCenter:
+      return velocity > Constants.minimumSwipeVelocity
+
+    case .slideDownToTop:
+      return velocity < Constants.minimumSwipeVelocity
+      
+    case .slideUpToBottom:
+      return velocity > Constants.minimumSwipeVelocity
+    }
   }
   
   func handleExitDelayIfNeeded(byPanState state: UIGestureRecognizer.State) {
