@@ -52,7 +52,7 @@ public extension RIWrapper where Base: RICompatible {
   
   func display(with attributes: RIAttributes,
                presentInsideKeyWindow: Bool = true,
-               displayMethod: RelevantInformer.Context.DisplayMethod) {
+               displayMethod: RelevantInformer.Context.DisplayMethod = .enqueue) {
     
     let context = RelevantInformer.Context(content: self.base,
                                            attributes: attributes,

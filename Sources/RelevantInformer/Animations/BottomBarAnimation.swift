@@ -1,14 +1,13 @@
 //
-//  BottomToCenterAnimation.swift
-//  RelevantInformerExample
+//  BottomBarAnimation.swift
+//  
 //
-//  Created by Rufat Mirza on 9.07.2020.
-//  Copyright © 2020 Rufat Mirza. All rights reserved.
+//  Created by Rufat Mirza on 20.07.2020.
 //
 
 import UIKit
 
-final class BottomToCenterAnimation: Animator {
+final class BottomBarAnimation: Animator {
   
   var initialConstraint: NSLayoutConstraint!
   var targetConstraint: NSLayoutConstraint!
@@ -44,7 +43,7 @@ final class BottomToCenterAnimation: Animator {
                    trailingConstant: sideMargin)
         
     initialConstraint = child.constraint(.top, toView: parent, to: .bottom, priority: .must)
-    targetConstraint = child.constraint(.centerY, constant: offset, toView: parent, to: .centerY)
+    targetConstraint = child.constraint(.bottom, constant: offset, toView: parent, to: .bottom)
   }
   
   private func setupKeyboardAnimation() {

@@ -20,8 +20,6 @@ final class ViewController: UIViewController {
   
   private var counter: Int = 0
   
-  private let exampleVC = ExampleViewController()
-  
   override func viewDidLoad() {
     super.viewDidLoad()
     
@@ -34,6 +32,11 @@ final class ViewController: UIViewController {
   }
   
   @objc private func action() {
+    showNotification()
+  }
+  
+  private func showPopup() {
+    let vc = ExampleViewController()
     var attributes = RIAttributes()
     attributes.screenBackground = .visualEffect(style: .prominent)
     attributes.roundCorners = .all(radius: 20)
@@ -57,12 +60,26 @@ final class ViewController: UIViewController {
     attributes.interaction.onScreen = .ignore
     
     if counter > 0 {
-      exampleVC.descriptionLabel.text = "\(counter)"
+      vc.descriptionLabel.text = "\(counter)"
     }
     
     counter += 1
     
-    let ratingPopup = RelevantInformer.Context(content: exampleVC, attributes: attributes, displayMethod: .override(removeRest: false), presentInsideKeyWindow: true)
+    let ratingPopup = RelevantInformer.Context(content: vc, attributes: attributes, displayMethod: .override(removeRest: false), presentInsideKeyWindow: true)
+    
+    RelevantInformer.display(ratingPopup)
+  }
+  
+  private func showNotification() {
+    let vc = NotificationExampleViewController()
+    
+    var attributes = RIAttributes.popup
+
+    attributes.shadow = .active(with: .init(color: .init(UIColor.black),
+                                            opacity: 0.1, radius: 4,
+                                            offset: CGSize(width: 0, height: 2)))
+    
+    let ratingPopup = RelevantInformer.Context(content: vc, attributes: attributes, displayMethod: .override(removeRest: false), presentInsideKeyWindow: true)
     
     RelevantInformer.display(ratingPopup)
   }
