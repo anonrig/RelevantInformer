@@ -11,76 +11,133 @@ import RelevantInformer
 
 final class ViewController: UIViewController {
   
-  private lazy var button: UIButton = {
-    let button = UIButton(type: .system)
-    button.addTarget(self, action: #selector(action), for: .touchUpInside)
-    button.setTitle("Show message", for: .normal)
-    return button
-  }()
+  private var count: Int = 0
   
-  private var counter: Int = 0
+  private lazy var collectionView: UICollectionView = {
+    let layout = UICollectionViewFlowLayout()
+    layout.scrollDirection = .vertical
+    layout.minimumInteritemSpacing = Constants.interItemSpaing
+    layout.minimumLineSpacing = Constants.interItemSpaing
+    
+    let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
+    view.backgroundColor = .white
+    view.alwaysBounceVertical = true
+    return view
+  }()
   
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    view.addSubview(button)
-    button.translatesAutoresizingMaskIntoConstraints = false
-    NSLayoutConstraint.activate([
-      button.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-      button.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-    ])
-  }
-  
-  @objc private func action() {
-    showNotification()
-  }
-  
-  private func showPopup() {
-    let vc = ExampleViewController()
-    var attributes = RIAttributes()
-    attributes.screenBackground = .visualEffect(style: .prominent)
-    attributes.roundCorners = .all(radius: 20)
-    attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 4, offset: .init(width: 0, height: 0)))
-    
-    attributes.animations.entrance = .init(
-      translate: .init(duration: 0.7,
-                       delay: 0,
-                       spring: .init(damping: 0.7, initialVelocity: 0)),
-      
-      scale: .init(from: 0.7,
-                   to: 1,
-                   duration: 0.4,
-                   delay: 0,
-                   spring: .init(damping: 1, initialVelocity: 0)),
-      
-      fade: nil
-    )
-    
-    attributes.displayDuration = .infinity
-    attributes.interaction.onScreen = .ignore
-    
-    if counter > 0 {
-      vc.descriptionLabel.text = "\(counter)"
-    }
-    
-    counter += 1
-    
-    let ratingPopup = RelevantInformer.Context(content: vc, attributes: attributes, displayMethod: .override(removeRest: false), presentInsideKeyWindow: true)
-    
-    RelevantInformer.display(ratingPopup)
-  }
-  
-  private func showNotification() {
-    let vc = NotificationExampleViewController()
-    
-    var attributes = RIAttributes.popup
+    view.addSubview(collectionView)
+    collectionView.fillSuperview()
 
-    attributes.shadow = .active(with: .init(color: .init(UIColor.black),
-                                            opacity: 0.1, radius: 4,
-                                            offset: CGSize(width: 0, height: 2)))
+    collectionView.register(PresetCollectionViewCell.self, forCellWithReuseIdentifier: "cell")
     
-    let ratingPopup = RelevantInformer.Context(content: vc, attributes: attributes, displayMethod: .override(removeRest: false), presentInsideKeyWindow: true)
+    collectionView.delegate = self
+    collectionView.dataSource = self
+    collectionView.reloadData()
+  }
+}
+
+extension ViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+  
+  func collectionView(_ collectionView: UICollectionView,
+                      numberOfItemsInSection section: Int) -> Int {
+    return Presets.allCases.count
+  }
+ 
+  func collectionView(_ collectionView: UICollectionView,
+                      cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell",
+                                                  for: indexPath) as! PresetCollectionViewCell
+    let item = Presets.allCases[indexPath.item]
+    cell.backgroundColor = .red
+    cell.configure(with: item.rawValue)
+    return cell
+  }
+  
+  func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    let item = Presets.allCases[indexPath.item]
+    item.action(count: count)
+    count += 1
+  }
+  
+  func collectionView(_ collectionView: UICollectionView,
+                      layout collectionViewLayout: UICollectionViewLayout,
+                      sizeForItemAt indexPath: IndexPath) -> CGSize {
     
-    RelevantInformer.display(ratingPopup)
+    let width = (view.frame.size.width - Constants.margin * 2) / 2 - Constants.interItemSpaing
+    return CGSize(width: width, height: width)
+  }
+  
+  func collectionView(_ collectionView: UICollectionView,
+                      layout collectionViewLayout: UICollectionViewLayout,
+                      insetForSectionAt section: Int) -> UIEdgeInsets {
+    return UIEdgeInsets(top: 0, left: Constants.margin, bottom: 0, right: Constants.margin )
+  }
+}
+
+private extension ViewController {
+  
+  struct Constants {
+    static let margin: CGFloat = 16
+    static let interItemSpaing: CGFloat = 10
+  }
+}
+
+enum Presets: String, CaseIterable {
+  case popup
+  case overridingPopup
+  case notification
+  case bottomBar
+  case popupDissmisses
+  case overrideAndRemoveAll
+  
+  func action(count: Int = 0) {
+    switch self {
+    case .popup:
+      let controller = ExampleViewController()
+      controller.descriptionLabel.text = "\(count)"
+      var attributes = RIAttributes.popup
+      attributes.displayDuration = .infinity
+      attributes.interaction.onScreen = .forwardToLowerWindow
+      controller.ri.display(with: attributes)
+      
+    case .overridingPopup:
+      let controller = ExampleViewController()
+      controller.descriptionLabel.text = "\(count)"
+      var attributes = RIAttributes.popup
+      attributes.displayDuration = .infinity
+      attributes.interaction.onScreen = .forwardToLowerWindow
+      controller.ri.display(with: attributes, displayMethod: .override(removeRest: false))
+      
+    case .notification:
+      let controller = NotificationExampleViewController()
+      var attributes = RIAttributes.notification
+      attributes.interaction.onScreen = .forwardToLowerWindow
+      controller.ri.display(with: attributes)
+    
+    case .popupDissmisses:
+      let controller = ExampleViewController()
+      controller.descriptionLabel.text = "\(count)"
+      var attributes = RIAttributes.popup
+      attributes.displayDuration = .infinity
+      attributes.interaction.onScreen = .forwardToLowerWindow
+      controller.ri.display(with: attributes)
+      after(seconds: 2) {
+        controller.ri.dismiss()
+      }
+      
+    case .overrideAndRemoveAll:
+      let controller = ExampleViewController()
+      controller.descriptionLabel.text = "\(count)"
+      var attributes = RIAttributes.popup
+      attributes.displayDuration = .infinity
+      attributes.interaction.onScreen = .forwardToLowerWindow
+      controller.ri.display(with: attributes, displayMethod: .override(removeRest: true))
+      
+    default:
+      break
+    }
   }
 }
