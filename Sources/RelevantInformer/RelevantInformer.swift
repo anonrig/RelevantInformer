@@ -51,7 +51,7 @@ public final class RelevantInformer {
 public extension RIWrapper where Base: RICompatible {
   
   func display(with attributes: RIAttributes,
-               presentInsideKeyWindow: Bool = true,
+               presentInsideKeyWindow: Bool = false,
                displayMethod: RelevantInformer.Context.DisplayMethod = .enqueue) {
     
     let context = RelevantInformer.Context(content: self.base,
@@ -81,6 +81,7 @@ extension RelevantInformer {
   
   public static func dismiss(_ descriptor: DismissMethod = .displayed,
                              with completion: VoidCallback? = nil) {
+    RIWindowService.shared.dismiss(.displayed, with: completion)
   }
   
   public static func hideAll(with completion: VoidCallback? = nil) {

@@ -8,12 +8,16 @@
 
 import Foundation
 
-struct RIQueue<Element> {
+struct RIQueue<Element: Equatable> {
   
   var items: [Element] = []
   
   var isEmpty: Bool {
     return items.isEmpty
+  }
+  
+  var hasSingleElement: Bool {
+    return items.count == 1
   }
   
   mutating func insert(_ item: Element, at index: Int) {
@@ -22,6 +26,12 @@ struct RIQueue<Element> {
   
   mutating func enqueue(_ item: Element) {
     items.append(item)
+  }
+  
+  mutating func enqueueUnique(_ item: Element) {
+    if !items.contains(item) {
+      items.append(item)
+    }
   }
   
   @discardableResult

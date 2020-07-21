@@ -67,7 +67,6 @@ final class RIRootViewController: UIViewController {
     contentManager?.close(userInitiated: false) {
       completion?()
     }
-    contentManager = nil
   }
 }
 
@@ -76,7 +75,6 @@ final class RIRootViewController: UIViewController {
 extension RIRootViewController: ContentViewDelegate {
   
   func didCloseUserInitiated(view: RIMessageView) {
-    contentManager = nil
     delegate.rootNeedsUpdate()
   }
   

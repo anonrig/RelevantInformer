@@ -40,21 +40,26 @@ extension RIWindowService {
       
       queue.insert(context, at: 0)
       
+      if let manager = root?.contentManager {
+        manager.close(userInitiated: false) { [weak self] in
+          self?.update()
+        }
+      }
+      else {
+        update()
+      }
+      
     case .enqueue:
-      queue.enqueue(context)
+      queue.enqueueUnique(context)
+      
+      if queue.hasSingleElement {
+        update()
+      }
     }
-    
-    update()
   }
   
   private func update() {
     if let next = queue.peek() {
-      
-      if next == root?.contentManager?.context {
-        return
-      }
-      
-      root?.closeCurrentContext()
       show(context: next)
     }
     else {
@@ -73,6 +78,7 @@ extension RIWindowService {
   private func prepare(for context: RelevantInformer.Context) -> RIRootViewController? {
     let root = setupWindow()
     window.windowLevel = context.attributes.windowLevel.value
+    
     if context.presentInsideKeyWindow {
       window.makeKeyAndVisible()
     }
@@ -126,14 +132,21 @@ extension RIWindowService {
     
     switch descriptor {
     case .displayed:
-      break // TODO: Add implementation
+      root?.closeCurrentContext() { [weak self] in
+        self?.queue.dequeue()
+        self?.update()
+      }
       
     case .specific(let item):
+      
       if item === root?.contentManager?.context.content {
         root?.closeCurrentContext() { [weak self] in
           self?.queue.remove(item)
-          self?.rootNeedsUpdate()
+          self?.update()
         }
+      }
+      else {
+        queue.remove(item)
       }
       
     case .enqueued:
