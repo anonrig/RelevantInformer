@@ -136,6 +136,12 @@ enum Presets: String, CaseIterable {
       attributes.interaction.onScreen = .forwardToLowerWindow
       controller.ri.display(with: attributes, displayMethod: .override(removeRest: true))
       
+    case .bottomBar:
+      let controller = NotificationExampleViewController()
+      var attributes = RIAttributes.solidBottomBar
+      attributes.interaction.onScreen = .forwardToLowerWindow
+      controller.ri.display(with: attributes)
+      
     default:
       break
     }

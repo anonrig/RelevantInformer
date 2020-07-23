@@ -27,7 +27,6 @@ public class NotificationExampleViewController: UIViewController {
   
   public override func viewDidLoad() {
     super.viewDidLoad()
-//    view.backgroundColor = .gray
     
     view.backgroundColor = UIColor(red: 242/255, green: 216/255, blue: 11/255, alpha: 1)
     
@@ -38,7 +37,7 @@ public class NotificationExampleViewController: UIViewController {
       stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
       stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
       stackView.topAnchor.constraint(equalTo: view.topAnchor, constant: 16),
-      stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -16)
+      stackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
     ])
   }
 }
