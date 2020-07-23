@@ -17,10 +17,6 @@ final class NotificationAnimation: Animator {
   private let parent: UIView
   private let attributes: RIAttributes
   private let context: AnimationContext
-    
-  private var offset: CGFloat {
-    return UIApplication.shared.statusBarFrame.height + attributes.constraints.verticalOffset
-  }
   
   init(context: AnimationContext) {
     self.child = context.view
@@ -43,7 +39,7 @@ final class NotificationAnimation: Animator {
                    trailingConstant: offset)
         
     initialConstraint = child.constraint(.bottom, toView: parent, to: .top, priority: .must)
-    targetConstraint = child.constraint(.top, constant: offset, toView: parent, to: .top)
+    targetConstraint = child.topAnchor.constraint(equalTo: parent.safeAreaLayoutGuide.topAnchor)
   }
   
   private func setupKeyboardAnimation() {
@@ -79,7 +75,7 @@ final class NotificationAnimation: Animator {
     let options: UIView.AnimationOptions = [.allowUserInteraction, .beginFromCurrentState]
     
     let action = {
-      self.targetConstraint?.constant = self.offset
+      self.targetConstraint?.constant = 0
       self.parent.layoutIfNeeded()
     }
     
